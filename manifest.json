@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Inga \u2014 HTTP Header & Cloudflare Inspector",
+  "description": "Inspect the current tab's HTTP headers, Cloudflare details and time to first byte. Nothing leaves your browser on its own.",
+  "version": "1.0.1",
+  "icons": {
+    "16": "icons/inga-neutral-16.png",
+    "32": "icons/inga-neutral-32.png",
+    "48": "icons/inga-neutral-48.png",
+    "128": "icons/inga-neutral-128.png"
+  },
+  "background": {
+    "service_worker": "build/background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Inga",
+    "default_icon": {
+      "16": "icons/inga-neutral-16.png",
+      "32": "icons/inga-neutral-32.png"
+    }
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "permissions": ["storage", "webRequest", "scripting"],
+  "host_permissions": ["<all_urls>"]
+}
