@@ -1,0 +1,28 @@
+name: inga
+description: >-
+  Inga -- Inspect Network, Gateways, Addresses. A Manifest V3 header
+  inspector: HTTP headers, Cloudflare detection and time to first byte,
+  without a single outgoing request.
+version: 1.0.1
+
+# An extension is shipped to a browser, never to a registry.
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  # DOM for the popup and the options page. Not dart:html, which is
+  # retired.
+  web: ^1.1.1
+  # The shared library, pinned to a real git tag (HZ-006 discipline: the
+  # committed manifest names the tag; local development redirects the
+  # source through a gitignored pubspec_overrides.yaml, never through
+  # this file).
+  webext:
+    git:
+      url: https://github.com/heikozim/dart-webext.git
+      ref: v0.4.1
+
+dev_dependencies:
+  test: ^1.25.0

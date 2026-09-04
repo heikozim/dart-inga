@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<!-- dart-inga (C) 2026 Heiko Zimmermann -->
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+<html data-theme="system">
+<head>
+  <meta charset="utf-8">
+  <title>Inga</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>Inga</h1>
+    <span id="status" class="status status-none" hidden></span>
+    <span id="count"></span>
+    <span class="spacer"></span>
+    <select id="theme" title="Theme">
+      <option value="system">System</option>
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+    <button id="external" title="Check this site in external tools"
+      disabled>&#8599;</button>
+    <button id="options" title="Settings">&#9881;</button>
+  </header>
+  <div id="external-menu" class="ext-menu" hidden></div>
+  <p id="message" hidden></p>
+  <div class="selector-row">
+    <select id="requests" title="Requests of this page"></select>
+    <button id="copy-url" title="Copy the full URL">&#10697;</button>
+  </div>
+  <div id="cloudflare" class="cf-line" hidden></div>
+  <div class="controls">
+    <button id="show-request" class="toggle">Request</button>
+    <button id="show-response" class="toggle active">Response</button>
+    <input id="filter" type="search" placeholder="Filter name or value">
+    <button id="copy" title="Copy the current view">Copy</button>
+  </div>
+  <div id="headers"></div>
+  <script src="build/popup.js"></script>
+</body>
+</html>

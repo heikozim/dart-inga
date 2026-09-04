@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!-- dart-inga (C) 2026 Heiko Zimmermann -->
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+<html data-theme="system">
+<head>
+  <meta charset="utf-8">
+  <title>Inga settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <h1>Inga &#8212; Inspect Network, Gateways, Addresses</h1>
+  <p id="message" hidden></p>
+  <label class="field">Theme
+    <select id="theme">
+      <option value="system">Follow system</option>
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+  </label>
+  <label class="field check">
+    <input type="checkbox" id="show-ttfb">
+    <span class="field-text">Show time to first byte
+      <span class="hint">Badge number and tooltip timing.</span>
+    </span>
+  </label>
+  <label class="field check">
+    <input type="checkbox" id="trace">
+    <span class="field-text">Allow the on-click /cdn-cgi/trace fetch
+      <span class="hint">One request to the page's origin, only when you
+        click the word cloudflare; off means nothing ever leaves the
+        browser.</span>
+    </span>
+  </label>
+  <label class="field check">
+    <input type="checkbox" id="collapse">
+    <span class="field-text">Collapse repeated headers to the first
+      occurrence</span>
+  </label>
+  <label class="field check">
+    <input type="checkbox" id="sort">
+    <span class="field-text">Sort headers alphabetically</span>
+  </label>
+  <p class="note">
+    Settings are shared across your devices where the browser offers it.
+    Captured headers are never stored beyond the session.
+  </p>
+  <p class="about">
+    <span id="version"></span>
+    Copyright (C) 2026 Heiko Zimmermann<br>
+    Licensed under the BSD-3-Clause license.<br>
+    <a href="mailto:addon@heiko-zimmermann.com">addon@heiko-zimmermann.com</a>
+  </p>
+  <script src="build/options.js"></script>
+</body>
+</html>
