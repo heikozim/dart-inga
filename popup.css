@@ -1,0 +1,280 @@
+/* dart-inga (C) 2026 Heiko Zimmermann */
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+/* Light is the base; dark overrides via the data-theme attribute the
+   popup sets from the theme setting, and via the system preference when
+   the setting says system. The token block is deliberately duplicated
+   for those two dark paths -- CSS has no way to alias a media query to
+   an attribute selector. */
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #6b6b6b;
+  --line: #e0e0e0;
+  --accent: #f6821f;
+  --row-hover: #f4f4f4;
+}
+:root[data-theme='dark'] {
+  --bg: #1e1e1e;
+  --fg: #e6e6e6;
+  --muted: #9a9a9a;
+  --line: #3a3a3a;
+  --row-hover: #2a2a2a;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='system'] {
+    --bg: #1e1e1e;
+    --fg: #e6e6e6;
+    --muted: #9a9a9a;
+    --line: #3a3a3a;
+    --row-hover: #2a2a2a;
+  }
+}
+
+body {
+  width: 480px;
+  margin: 0;
+  padding: 8px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px/1.4 system-ui, sans-serif;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+h1 {
+  font-size: 14px;
+  margin: 0;
+}
+.spacer {
+  flex: 1;
+}
+#count {
+  color: var(--muted);
+}
+
+.status {
+  padding: 1px 6px;
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: 600;
+}
+.status-none { background: var(--muted); }
+.status-1xx { background: #6b6b6b; }
+.status-2xx { background: #2e7d32; }
+.status-3xx { background: #1565c0; }
+.status-4xx { background: #ef6c00; }
+.status-5xx { background: #c62828; }
+
+#message {
+  color: #c62828;
+  margin: 4px 0;
+}
+
+/* The selector keeps its own click (it opens the list); the copy of the
+   full URL sits beside it as its own control, so the two never compete
+   for the same click. */
+.selector-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+#requests {
+  flex: 1;
+  min-width: 0;
+}
+#copy-url {
+  flex: none;
+}
+/* The receipt sits beside the button, not on top of it: on the button
+   the overlay covered the symbol entirely and it read as gone. */
+.selector-row.copied::after {
+  right: 40px;
+}
+
+/* The Cloudflare line: a colour dot with the signal word, then the
+   fields as rows of the shared label/value table below (.kv-row --
+   ordered 2026-09-03, replacing the indented subgrid), so the block
+   and the header list read as one component. The divider before the
+   on-click trace fields is a .hop section heading like the hop labels
+   of the header list; the values beneath it describe the TRACE
+   request, not the page (ADR-001). */
+/* The Cloudflare block closes with a heavier rule than the row lines
+   inside it: this one separates two AREAS, not two rows. The last row
+   drops its own line so the two do not stack. */
+.cf-line {
+  margin-bottom: 8px;
+  padding-bottom: 2px;
+  border-bottom: 2px solid var(--line);
+}
+.cf-fields > .kv-row:last-child {
+  border-bottom: none;
+}
+.cf-row {
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+}
+.cf-trace {
+  padding-left: 4px;
+  margin-top: 4px;
+}
+.cf-signal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cf-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.cf-word {
+  font-weight: 600;
+}
+.cf-word-clickable {
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+.cf-trace-tag {
+  color: var(--muted);
+}
+/* Says out loud that the click does nothing, instead of hiding the
+   reason in a tooltip nobody looks for. */
+.cf-off {
+  color: var(--muted);
+}
+.cf-trace-error {
+  color: #c62828;
+}
+.cf-yes { background: var(--accent); }
+.cf-no { background: #ff3b30; } /* red: measured, not Cloudflare */
+.cf-pending { background: var(--muted); }
+
+.controls {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+#filter {
+  flex: 1;
+  min-width: 0;
+}
+.toggle.active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+
+/* The gear inherits the 13px body font otherwise -- too small to
+   recognise (reported 2026-09-01). The external-tools arrow matches. */
+#options,
+#external {
+  font-size: 20px;
+  line-height: 1;
+  padding: 1px 8px;
+}
+
+/* The external-tools menu (ADR-002): an overlay below the header, so
+   it costs no layout space. The host line names what a click hands
+   over before it happens. */
+.ext-menu {
+  position: absolute;
+  right: 8px;
+  top: 36px;
+  z-index: 2;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 4px;
+  min-width: 200px;
+}
+.ext-host {
+  color: var(--muted);
+  padding: 2px 8px 4px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 2px;
+  overflow-wrap: anywhere;
+}
+.ext-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 3px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+.ext-item:hover {
+  background: var(--row-hover);
+}
+
+button,
+input,
+select {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font: inherit;
+}
+
+.hop {
+  margin: 8px 0 2px;
+  color: var(--muted);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* THE label/value table of the popup (unified 2026-09-03): the header
+   list and the Cloudflare fields render the same row -- one label
+   column, one weight, one rhythm -- so the two blocks read as one
+   component. Every row copies itself on click. */
+.kv-row {
+  display: flex;
+  gap: 8px;
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--line);
+  cursor: copy;
+  position: relative;
+}
+.kv-row:hover {
+  background: var(--row-hover);
+}
+.kv-label {
+  flex: 0 0 180px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.kv-value {
+  flex: 1;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+/* The receipt is an overlay, never part of the flow: rendered in flow
+   it widened the copy button and pushed the layout (reported
+   2026-09-01). */
+.copied {
+  position: relative;
+}
+.copied::after {
+  content: 'copied';
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0 3px;
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+}
