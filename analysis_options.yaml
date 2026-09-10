@@ -1,0 +1,178 @@
+# Sharp by intent. dart analyze must report nothing at all, and that is a
+# hard precondition for every commit, intermediate states included.
+#
+# No include: of package:lints. CLAUDE.md permits no dependency beyond
+# chrome_extension, web and test, so the rule set is spelled out here.
+
+analyzer:
+  language:
+    # The three that carry rule 5 of CLAUDE.md: no dynamic, no unchecked
+    # cast outside the interop layer.
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    # A missing dartdoc on a public element is not a style opinion here.
+    # CLAUDE.md requires one on every public element, so it fails the build.
+    public_member_api_docs: error
+    # Silently dropped futures are the failure mode this library exists to
+    # prevent: a service worker dies and the write never lands.
+    unawaited_futures: error
+  exclude:
+    - doc/api/**
+    - build/**
+
+linter:
+  rules:
+    # Types and inference
+    - always_declare_return_types
+    - annotate_overrides
+    - avoid_dynamic_calls
+    - avoid_type_to_string
+    - avoid_types_as_parameter_names
+    - cast_nullable_to_non_nullable
+    - collection_methods_unrelated_type
+    - implicit_call_tearoffs
+    - null_check_on_nullable_type_parameter
+    - prefer_typing_uninitialized_variables
+    - prefer_void_to_null
+    - tighten_type_of_initializing_formals
+    - type_annotate_public_apis
+    - type_init_formals
+    - unnecessary_null_checks
+    - unnecessary_nullable_for_final_variable_declarations
+    - unrelated_type_equality_checks
+    - use_function_type_syntax_for_parameters
+    - void_checks
+
+    # Immutability and construction.
+    #
+    # avoid_equals_and_hash_code_on_mutable_classes is deliberately absent: it
+    # is satisfied by annotating a class @immutable, that annotation lives in
+    # package:meta, and CLAUDE.md allows no dependency beyond
+    # chrome_extension, web and test. Enabling it would mean either a fourth
+    # dependency or an ignore comment on every value type. Immutability is
+    # carried here by prefer_final_fields and by review instead.
+    - avoid_field_initializers_in_const_classes
+    - avoid_setters_without_getters
+    - avoid_unused_constructor_parameters
+    - hash_and_equals
+    - prefer_asserts_in_initializer_lists
+    - prefer_const_constructors
+    - prefer_const_constructors_in_immutables
+    - prefer_const_declarations
+    - prefer_const_literals_to_create_immutables
+    - prefer_final_fields
+    - prefer_final_in_for_each
+    - prefer_final_locals
+    - prefer_initializing_formals
+    - sort_constructors_first
+    - sort_unnamed_constructors_first
+    - use_super_parameters
+
+    # Asynchrony and resources. cancel_subscriptions matters: a TabStore
+    # holds a tabs.onRemoved subscription for its whole life.
+    - avoid_slow_async_io
+    - avoid_void_async
+    - await_only_futures
+    - cancel_subscriptions
+    - close_sinks
+    - unawaited_futures
+    - unnecessary_await_in_return
+
+    # Failure handling. Nothing above browserkit throws, so a swallowed
+    # error is a defect and not a shortcut.
+    - avoid_catching_errors
+    - control_flow_in_finally
+    - empty_catches
+    - only_throw_errors
+    - throw_in_finally
+    - use_rethrow_when_possible
+
+    # Correctness traps
+    - avoid_empty_else
+    - avoid_returning_null_for_void
+    - literal_only_boolean_expressions
+    - no_adjacent_strings_in_list
+    - no_duplicate_case_values
+    - no_literal_bool_comparisons
+    - no_runtimeType_toString
+    - no_self_assignments
+    - no_wildcard_variable_uses
+    - test_types_in_equals
+    - unnecessary_statements
+    - valid_regexps
+
+    # Documentation. comment_references keeps a dartdoc link from rotting
+    # into a dead name.
+    - comment_references
+    - provide_deprecation_message
+    - public_member_api_docs
+    - slash_for_doc_comments
+
+    # Layout and naming. No abbreviations is a review matter, not a lint,
+    # but the mechanical half is enforced here.
+    - camel_case_types
+    - constant_identifier_names
+    - curly_braces_in_flow_control_structures
+    - depend_on_referenced_packages
+    - directives_ordering
+    - eol_at_end_of_file
+    - file_names
+    - library_annotations
+    - library_names
+    - missing_whitespace_between_adjacent_strings
+    - no_leading_underscores_for_local_identifiers
+    - non_constant_identifier_names
+    - prefer_single_quotes
+    - sort_pub_dependencies
+    - unnecessary_library_directive
+    - use_string_in_part_of_directives
+
+    # Noise removal
+    - avoid_bool_literals_in_conditional_expressions
+    - avoid_escaping_inner_quotes
+    - avoid_function_literals_in_foreach_calls
+    - avoid_multiple_declarations_per_line
+    - avoid_positional_boolean_parameters
+    - avoid_print
+    - avoid_redundant_argument_values
+    - empty_statements
+    - exhaustive_cases
+    - join_return_with_assignment
+    - prefer_collection_literals
+    - prefer_conditional_assignment
+    - prefer_contains
+    - prefer_if_null_operators
+    - prefer_interpolation_to_compose_strings
+    - prefer_is_empty
+    - prefer_is_not_empty
+    - prefer_is_not_operator
+    - prefer_iterable_whereType
+    - prefer_null_aware_method_calls
+    - recursive_getters
+    - unnecessary_brace_in_string_interps
+    - unnecessary_breaks
+    - unnecessary_const
+    - unnecessary_getters_setters
+    - unnecessary_lambdas
+    - unnecessary_late
+    - unnecessary_new
+    - unnecessary_null_aware_assignments
+    - unnecessary_null_in_if_null_operators
+    - unnecessary_overrides
+    - unnecessary_parenthesis
+    - unnecessary_raw_strings
+    - unnecessary_string_escapes
+    - unnecessary_string_interpolations
+    - unnecessary_this
+    - unnecessary_to_list_in_spreads
+    - use_enums
+    - use_if_null_to_convert_nulls_to_bools
+    - use_is_even_rather_than_modulo
+    - use_late_for_private_fields_and_variables
+    - use_named_constants
+    - use_raw_strings
+    - use_setters_to_change_properties
+    - use_string_buffers
+    - use_to_and_as_if_applicable
