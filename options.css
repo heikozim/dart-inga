@@ -1,0 +1,98 @@
+/* dart-inga (C) 2026 Heiko Zimmermann */
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+/* Same theme mechanics as popup.css: light is the base, dark comes via
+   the data-theme attribute or, when the setting says system, via the
+   system preference. */
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #6b6b6b;
+  --line: #e0e0e0;
+}
+:root[data-theme='dark'] {
+  --bg: #1e1e1e;
+  --fg: #e6e6e6;
+  --muted: #9a9a9a;
+  --line: #3a3a3a;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='system'] {
+    --bg: #1e1e1e;
+    --fg: #e6e6e6;
+    --muted: #9a9a9a;
+    --line: #3a3a3a;
+  }
+}
+
+body {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px/1.5 system-ui, sans-serif;
+}
+
+h1 {
+  font-size: 18px;
+}
+
+.field {
+  display: block;
+  margin: 12px 0;
+}
+
+/* Checkbox fields: the box in its own column so a label that wraps
+   keeps a hanging indent instead of running under the box (finding
+   2026-09-01 on the trace label). */
+.field.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.field.check input {
+  flex: none;
+  margin-top: 4px;
+}
+.field-text {
+  flex: 1;
+  min-width: 0;
+}
+.hint {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+select {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font: inherit;
+  margin-left: 8px;
+}
+
+.note {
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  margin-top: 24px;
+}
+
+#message {
+  color: #c62828;
+}
+
+.about {
+  color: var(--muted);
+  font-size: 12px;
+}
+.about a {
+  color: inherit;
+  /* Never hyphenate the address at its domain dash (finding
+     2026-09-02: the line broke mid-address). */
+  white-space: nowrap;
+}

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="200" height="200">
+  <!-- Toolbar form for 16 and 32 px. The shell is a full-bleed circle so
+       the icon fills the slot like its neighbours. Legs and antennae are
+       omitted on purpose: at 16 px they render as grey haze. The full
+       drawing with legs is in inga-{color}.svg and serves 48 and 128. -->
+  <defs>
+    <clipPath id="shell"><circle cx="50" cy="50" r="46"/></clipPath>
+  </defs>
+  <circle cx="50" cy="50" r="46" fill="#9EA3A8"/>
+  <g clip-path="url(#shell)">
+    <ellipse cx="50" cy="12" rx="24" ry="16" fill="#2f3136"/>
+    <line x1="50" y1="22" x2="50" y2="98" stroke="#1b1b1b" stroke-width="5"/>
+    <g fill="#1b1b1b">
+      <circle cx="29" cy="42" r="9"/><circle cx="71" cy="42" r="9"/>
+      <circle cx="33" cy="70" r="9"/><circle cx="67" cy="70" r="9"/>
+    </g>
+  </g>
+  <circle cx="50" cy="50" r="46" fill="none" stroke="#1b1b1b" stroke-width="4"/>
+</svg>
