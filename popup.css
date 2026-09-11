@@ -1,0 +1,434 @@
+/* dart-inga (C) 2026 Heiko Zimmermann */
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+/* Light is the base; dark overrides via the data-theme attribute the
+   popup sets from the theme setting, and via the system preference when
+   the setting says system. The token block is deliberately duplicated
+   for those two dark paths -- CSS has no way to alias a media query to
+   an attribute selector. */
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #6b6b6b;
+  --line: #e0e0e0;
+  /* Separates AREAS, not rows: the Cloudflare block from the header
+     list. --line is tuned to disappear between rows, which is exactly
+     wrong for a boundary one is meant to notice (reported
+     2026-09-11). */
+  --area-line: #b4b4b4;
+  --accent: #f6821f;
+  --row-hover: #f4f4f4;
+  /* The hint floats over rows, so it needs its own surface: --bg would
+     make it disappear into the popup in dark mode (reported
+     2026-09-11). Light lifts by border, dark by a lighter ground. */
+  --hint-bg: #ffffff;
+  --hint-line: #b0b0b0;
+}
+:root[data-theme='dark'] {
+  --bg: #1e1e1e;
+  --fg: #e6e6e6;
+  --muted: #9a9a9a;
+  --line: #3a3a3a;
+  --area-line: #5e5e5e;
+  --row-hover: #2a2a2a;
+  --hint-bg: #34343c;
+  --hint-line: #6d6d78;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='system'] {
+    --bg: #1e1e1e;
+    --fg: #e6e6e6;
+    --muted: #9a9a9a;
+    --line: #3a3a3a;
+    --area-line: #5e5e5e;
+    --row-hover: #2a2a2a;
+    --hint-bg: #34343c;
+    --hint-line: #6d6d78;
+  }
+}
+
+body {
+  width: 480px;
+  margin: 0;
+  padding: 8px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px/1.4 system-ui, sans-serif;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+h1 {
+  font-size: 14px;
+  margin: 0;
+}
+.spacer {
+  flex: 1;
+}
+#count {
+  color: var(--muted);
+}
+
+.status {
+  padding: 1px 6px;
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: 600;
+}
+.status-none { background: var(--muted); }
+.status-1xx { background: #6b6b6b; }
+.status-2xx { background: #2e7d32; }
+.status-3xx { background: #1565c0; }
+.status-4xx { background: #ef6c00; }
+.status-5xx { background: #c62828; }
+
+#message {
+  color: #c62828;
+  margin: 4px 0;
+}
+
+/* The selector keeps its own click (it opens the list); the copy of the
+   full URL sits beside it as its own control, so the two never compete
+   for the same click. */
+.selector-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+#requests {
+  flex: 1;
+  min-width: 0;
+}
+#copy-url {
+  flex: none;
+}
+/* The receipt sits beside the button, not on top of it: on the button
+   the overlay covered the symbol entirely and it read as gone. */
+.selector-row.copied::after {
+  right: 40px;
+}
+
+/* The Cloudflare line: a colour dot with the signal word, then the
+   fields as rows of the shared label/value table below (.kv-row --
+   ordered 2026-09-03, replacing the indented subgrid), so the block
+   and the header list read as one component. The divider before the
+   on-click trace fields is a .hop section heading like the hop labels
+   of the header list; the values beneath it describe the TRACE
+   request, not the page (ADR-001). */
+/* The Cloudflare block closes with a heavier rule than the row lines
+   inside it: this one separates two AREAS, not two rows. The last row
+   drops its own line so the two do not stack. */
+.cf-line {
+  margin-bottom: 8px;
+  padding-bottom: 2px;
+  border-bottom: 2px solid var(--area-line);
+}
+/* Names the second area instead of only drawing a line before it
+   (asked for 2026-09-11). The same .hop style as the hop labels and
+   the `trace request` heading, so the popup has ONE idiom for "a new
+   section starts here" rather than a rule in one place and a word in
+   another. It sits above the controls, because the Request/Response
+   toggle, the filter and Copy all act on the list below. */
+.headers-head {
+  margin-top: 0;
+}
+.cf-fields > .kv-row:last-child {
+  border-bottom: none;
+}
+.cf-row {
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+}
+/* The signal carries a hint of its own, so it is the box the hint
+   measures against -- and it opens downwards, because the signal is
+   the first thing in the block and has nothing above it. */
+.cf-signal {
+  position: relative;
+}
+.cf-signal > .kv-hint {
+  bottom: auto;
+  top: calc(100% + 3px);
+  left: 0;
+  right: auto;
+  width: max-content;
+  max-width: 380px;
+}
+.cf-signal:has(.kv-why:hover) > .kv-hint,
+.cf-signal:has(.kv-why:focus-visible) > .kv-hint {
+  display: block;
+}
+.cf-trace {
+  padding-left: 4px;
+  margin-top: 4px;
+}
+.cf-signal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cf-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.cf-word {
+  font-weight: 700;
+}
+.cf-word-clickable {
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+.cf-trace-tag {
+  color: var(--muted);
+}
+/* Says out loud that the click does nothing, instead of hiding the
+   reason in a tooltip nobody looks for. */
+.cf-off {
+  color: var(--muted);
+}
+.cf-trace-error {
+  color: #c62828;
+}
+.cf-yes { background: var(--accent); }
+.cf-no { background: #ff3b30; } /* red: measured, not Cloudflare */
+.cf-pending { background: var(--muted); }
+
+.controls {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+#filter {
+  flex: 1;
+  min-width: 0;
+}
+.toggle.active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+
+/* The gear inherits the 13px body font otherwise -- too small to
+   recognise (reported 2026-09-01). The external-tools arrow matches. */
+#options,
+#external {
+  font-size: 20px;
+  line-height: 1;
+  padding: 1px 8px;
+}
+
+/* The external-tools menu (ADR-002): an overlay below the header, so
+   it costs no layout space. The host line names what a click hands
+   over before it happens. */
+.ext-menu {
+  position: absolute;
+  right: 8px;
+  top: 36px;
+  z-index: 2;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 4px;
+  min-width: 200px;
+}
+.ext-host {
+  color: var(--muted);
+  padding: 2px 8px 4px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 2px;
+  overflow-wrap: anywhere;
+}
+.ext-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 3px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+.ext-item:hover {
+  background: var(--row-hover);
+}
+
+button,
+input,
+select {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font: inherit;
+}
+
+.hop {
+  margin: 8px 0 2px;
+  color: var(--muted);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* THE label/value table of the popup (unified 2026-09-03): the header
+   list and the Cloudflare fields render the same row -- one label
+   column, one weight, one rhythm -- so the two blocks read as one
+   component. Every row copies itself on click. */
+.kv-row {
+  display: flex;
+  gap: 8px;
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--line);
+  cursor: copy;
+  position: relative;
+}
+.kv-row:hover {
+  background: var(--row-hover);
+}
+.kv-label {
+  flex: 0 0 180px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.kv-value {
+  flex: 1;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+/* The field explanation, ABOVE the row and not a native `title`.
+   Placement is the whole reason it exists: `.kv-row` carries
+   `cursor: copy`, which macOS draws as the arrow with a green plus,
+   and a native tooltip appears exactly under that badge -- the badge
+   covers the first words (reported 2026-09-11). `title` cannot be
+   positioned; browser and system decide. Drawing it ourselves puts it
+   over the row, where nothing sits, and the copy cursor stays as it
+   is: it is the ONLY hint that a click copies the row.
+
+   Above by default, below for the first row of a block, which has no
+   room over it -- .kv-hint-below. Never hidden behind the popup edge:
+   the width is capped and the text wraps rather than being cut. */
+.kv-hint {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: calc(100% - 2px);
+  z-index: 5;
+  display: none;
+  padding: 6px 8px;
+  border: 1px solid var(--hint-line);
+  /* The accent edge says "this is a note about the row", in both
+     themes, without relying on a border that dark mode swallows. */
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  background: var(--hint-bg);
+  box-shadow: 0 3px 10px rgb(0 0 0 / 45%);
+  color: var(--fg);
+  /* Not smaller than the rows it explains: the popup body sits at 13px,
+     and 12px was reported as too small to read (2026-09-11). An
+     explanation nobody reads is worse than none. */
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  white-space: normal;
+  text-align: left;
+  pointer-events: none;
+}
+/* The first row of the table has nothing above it but the request
+   selector, so its hint opens downwards instead. Both the passive
+   fields and the trace fields live in the same .cf-fields table, so
+   this is one rule, not two. */
+.cf-fields > .kv-row:first-child > .kv-hint,
+.kv-hint-below {
+  bottom: auto;
+  top: calc(100% - 2px);
+}
+/* The marker, not the row, opens the box. Hovering the whole row meant
+   an explanation appeared on every pass of the mouse across the table
+   (reported 2026-09-11). :has() is how the box learns about a hover on
+   a marker that sits inside the label cell -- Firefox 121 and Chrome
+   105 carry it, well under the 140 this build declares. */
+/* The markers line up at the right edge of the label column instead of
+   trailing each label at its own width -- scattered across the table
+   they read as clutter (reported 2026-09-11). The label column is a
+   fixed 180px, so pushing the marker to its end puts every one of them
+   on the same x. Only labels that HAVE a marker become flex, so the
+   header list, which shares this class, is untouched. */
+.kv-label:has(.kv-why) {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.kv-why {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+  vertical-align: 1px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+}
+.kv-why:hover,
+.kv-why:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.kv-row:has(.kv-why:hover) > .kv-hint,
+.kv-row:has(.kv-why:focus-visible) > .kv-hint {
+  display: block;
+}
+/* The `trace request` heading is the THIRD thing that carries a hint,
+   beside .cf-signal and .kv-row, and it needs its own rule because it
+   is a .hop and neither of those. Found 2026-09-11: the box was being
+   attached to it and no selector could ever reveal it -- it sat in the
+   DOM, unreachable, while the notes claimed the heading was explained.
+   A hint whose trigger does not exist is worse than no hint: it reads
+   as done. */
+.cf-trace-head {
+  position: relative;
+}
+.cf-trace-head:has(.kv-why:hover) > .kv-hint,
+.cf-trace-head:has(.kv-why:focus-visible) > .kv-hint {
+  display: block;
+}
+/* The heading is one line of text, not a 180px label column, so its
+   marker follows the words instead of being pushed to a column edge --
+   `margin-left: auto` has nothing to push against in a block box
+   anyway. */
+.cf-trace-head .kv-why {
+  margin-left: 6px;
+}
+
+/* The receipt is an overlay, never part of the flow: rendered in flow
+   it widened the copy button and pushed the layout (reported
+   2026-09-01). */
+.copied {
+  position: relative;
+}
+.copied::after {
+  content: 'copied';
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0 3px;
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+}

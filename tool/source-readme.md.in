@@ -1,0 +1,103 @@
+# Inga @VERSION@ -- source for review
+
+This archive contains everything needed to rebuild the submitted
+Firefox package from source. The extension is written in Dart and
+compiled to JavaScript with `dart compile js` (dart2js), which is why
+the submitted package contains generated files.
+
+## What is here
+
+    dart-inga/     the extension, tag @TAG@
+    dart-webext/   the shared library it depends on, tag @WEBEXT_TAG@
+
+Both are reduced to what the build reads: sources, manifest, static
+files, licences and the build scripts. Tests, documentation, changelogs
+and project readmes are not included, as they take no part in producing
+the compiled output.
+
+Both projects are public:
+
+    https://github.com/heikozim/dart-inga/tree/@TAG@
+    https://github.com/heikozim/dart-webext/tree/@WEBEXT_TAG@
+
+`dart-inga/pubspec.yaml` pins the library to tag `@WEBEXT_TAG@`. The pin
+names the private development remote, so
+`dart-inga/pubspec_overrides.yaml` redirects the dependency to
+`../dart-webext` in this archive, which holds exactly that tagged
+state -- the build fetches nothing. The pin itself is left untouched,
+so it stays visible to you rather than being quietly rewritten.
+
+`dart-inga/pubspec.lock` is included so dependency resolution matches
+the submitted build.
+
+## Build environment
+
+    @SDK@
+
+Install from https://dart.dev/get-dart. No Node.js, no npm, no bundler,
+no minifier and no network access beyond `dart pub get`.
+
+## Build
+
+    cd dart-inga
+    dart pub get
+    tool/build_firefox.sh
+
+The result is written to `dart-inga/build-firefox/ext/`, which is the
+directory that was zipped and submitted.
+
+The script does three things and nothing else:
+
+1. `dart compile js -Dfirefox=true` once per entry point in `web/`.
+2. Removes the `.map` and `.deps` files dart2js writes beside each
+   output, and strips the `sourceMappingURL` line from the three `.js`
+   files. Source maps are not shipped, so the bare reference would only
+   make the developer tools report 404s.
+3. Copies the static files word for word and generates the Firefox
+   manifest from `manifest.json` via `tool/firefox_manifest.dart`
+   (this adds `browser_specific_settings.gecko` and turns the
+   background service worker into an event page script).
+
+## No minification or obfuscation
+
+dart2js is the only transformation applied. The output is machine
+generated and therefore not laid out like handwritten JavaScript, but
+no minifier, packer, obfuscator or name mangler runs on top of it, and
+nothing is fetched or generated at install or run time.
+
+## Verify
+
+    cd build-firefox/ext
+    shasum -a 256 build/*.js manifest.json
+
+Expected, and identical to the submitted package:
+
+@HASHES@
+
+These sums were taken from the very build that was packaged for
+submission. Reproducibility across other operating systems or Dart
+versions was not tested, so a different SDK may legitimately differ.
+
+## Why the extension asks for all hosts
+
+Inga inspects the HTTP headers of whatever page the user is looking at.
+Which sites those are is not known in advance, so the host permission
+cannot be narrowed to a list. The permission is used only to observe
+requests that the browser makes anyway, through `webRequest`; the
+extension never modifies, blocks or redirects a request, and it injects
+nothing into pages except `inject/protocol.js`, a five-line script that
+reads `performance.getEntriesByType("navigation")[0].nextHopProtocol`
+and returns it.
+
+The extension performs no outgoing request on its own. The single
+request it can make is the `/cdn-cgi/trace` fetch in `web/popup.dart`:
+off by default, enabled only in the options page, and then fired only
+by a click on the word `cloudflare`. It goes to the origin of the
+inspected page, without path or query. Captured headers stay in
+`storage.session` and are never sent anywhere. This is why the manifest
+declares `data_collection_permissions` as `none`.
+
+## Licence
+
+BSD-3-Clause, see `dart-inga/LICENSE`. Third-party notices for code
+embedded by dart2js are in `dart-inga/THIRD-PARTY-NOTICES`.
