@@ -41,7 +41,8 @@ source. Dart SDK >= 3.5 (built with 3.13.2).
 Chrome loads the repository root as an unpacked extension; Firefox
 loads `build-firefox/ext` temporarily (about:debugging). The Firefox
 manifest is generated from the one maintained `manifest.json` by
-`tool/firefox_manifest.dart`. The library dependency (`webext`) is
+`tool/firefox_manifest.dart`. The library dependency
+([`webext`](https://github.com/heikozim/dart-webext)) is
 pinned to a git tag in `pubspec.yaml`.
 
 ## What was measured
