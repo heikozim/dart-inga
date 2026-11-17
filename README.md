@@ -67,4 +67,4 @@ chrome_extension.dart project authors); both builds embed
 dart2js (BSD-3-Clause, the Dart project authors). Their license
 texts ship with the packaged extension (`THIRD-PARTY-NOTICES`).
 
-Copyright (C) 2026 Heiko Zimmermann <addon@heiko-zimmermann.com>
+Copyright (C) 2026 Heiko Zimmermann <code@heiko-zimmermann.com>
